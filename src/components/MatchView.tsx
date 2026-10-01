@@ -4,6 +4,7 @@ import { Scoreboard } from './Scoreboard';
 import { RecordPanel } from './RecordPanel';
 import { EditPointDialog, HistoryPanel } from './History';
 import { StatsPanel } from './Stats';
+import { Icon } from './ui';
 
 type Tab = 'record' | 'history' | 'stats';
 
@@ -85,15 +86,18 @@ export function MatchView({
 
   return (
     <div className="page match">
-      <header className="page-head">
-        <button className="btn ghost" onClick={onBack}>
-          ← Partidos
+      <header className="page-head match-head">
+        <button className="btn ghost head-btn" onClick={onBack}>
+          <Icon name="back" /> Partidos
         </button>
-        <h1 className="match-title">
-          {config.players[0]} <span className="vs">vs</span> {config.players[1]}
-        </h1>
-        <button className="btn ghost" onClick={onExport}>
-          Exportar
+        <div className="head-brand">
+          <p className="wordmark">Punto a Punto</p>
+          <h1 className="match-title">
+            {config.players[0]} <span className="vs">vs</span> {config.players[1]}
+          </h1>
+        </div>
+        <button className="btn ghost head-btn" onClick={onExport} aria-label="Exportar">
+          <Icon name="export" /> <span className="head-btn-text">Exportar</span>
         </button>
       </header>
 
@@ -135,10 +139,10 @@ export function MatchView({
         )}
         <div className="bottom-actions">
           <button className="btn" onClick={undo} disabled={!last}>
-            ↶ Deshacer
+            <Icon name="undo" /> Deshacer
           </button>
           <button className="btn" onClick={() => last && setEditing(last.number - 1)} disabled={!last}>
-            ✎ Corregir último
+            <Icon name="edit" /> Corregir último
           </button>
         </div>
       </div>

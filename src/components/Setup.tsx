@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import type { DecidingSet, GameScoring, MatchConfig, PlayerIndex, SetFormat } from '../engine';
-import { Segmented } from './ui';
+import { Icon, Segmented } from './ui';
 
 export function Setup({ onCreate, onCancel }: { onCreate: (c: MatchConfig) => void; onCancel: () => void }) {
   const [p1, setP1] = useState('');
@@ -28,9 +28,9 @@ export function Setup({ onCreate, onCancel }: { onCreate: (c: MatchConfig) => vo
     <form className="page setup" onSubmit={submit} noValidate>
       <header className="page-head">
         <button type="button" className="btn ghost" onClick={onCancel}>
-          ← Volver
+          <Icon name="back" /> Volver
         </button>
-        <h1>Nuevo partido</h1>
+        <h1 className="wordmark">Nuevo partido</h1>
       </header>
 
       <div className="card">

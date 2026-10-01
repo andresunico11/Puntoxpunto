@@ -2,7 +2,10 @@ import { useState } from 'react';
 import {
   ACTION_LABELS,
   addPoint,
+  describeClosure,
+  describeLocation,
   explainPoint,
+  formatScoreLine,
   pointWinnerOf,
   SERVE_ACTIONS,
   setShot,
@@ -16,10 +19,26 @@ import {
   type ScoreState,
   type ShotType,
 } from '../engine';
-import { ServeBall } from './ui';
+import { Icon, ServeBall, type IconName } from './ui';
+import { Closures } from './History';
 
 const WIN_ACTIONS: ActionType[] = ['winner', 'ace', 'won'];
 const ERR_ACTIONS: ActionType[] = ['unforced', 'forced', 'error', 'doubleFault'];
+
+const ACTION_ICONS: Record<ActionType, IconName> = {
+  winner: 'trophy',
+  ace: 'ace',
+  won: 'lines',
+  unforced: 'x',
+  forced: 'warning',
+  error: 'question',
+  doubleFault: 'doubleFault',
+};
+
+/** Rótulo visible corto; el nombre completo queda para lectores de pantalla. */
+const SHORT_LABELS: Partial<Record<ActionType, [hidden: string, visible: string]>> = {
+  won: ['Punto ganado ', 'sin detalle'],
+};
 
 export function RecordPanel({
   config,
@@ -59,11 +78,21 @@ export function RecordPanel({
     return (
       <button
         key={action}
-        className={`btn action ${WIN_ACTIONS.includes(action) ? 'win' : 'err'}`}
+        className={`btn action ${WIN_ACTIONS.includes(action) ? 'win' : 'err'}${notServer ? ' locked' : ''}`}
         disabled={disabled}
         onClick={() => register(action)}
       >
-        <span className="action-label">{ACTION_LABELS[action]}</span>
+        <Icon name={ACTION_ICONS[action]} className="action-icon" />
+        <span className="action-label">
+          {SHORT_LABELS[action] ? (
+            <>
+              <span className="sr-only">{SHORT_LABELS[action][0]}</span>
+              <span className="cap">{SHORT_LABELS[action][1]}</span>
+            </>
+          ) : (
+            ACTION_LABELS[action]
+          )}
+        </span>
         <span className="action-hint">
           {notServer
             ? `Solo ${config.players[state.server]} (saca)`
@@ -71,7 +100,7 @@ export function RecordPanel({
               ? `Punto para ${config.players[beneficiary]}`
               : serveOnly
                 ? 'Solo el sacador'
-                : ' '}
+                : '\u00a0'}
         </span>
       </button>
     );
@@ -98,17 +127,23 @@ export function RecordPanel({
                   setError(null);
                 }}
               >
+                <span className="player-check" aria-hidden="true">
+                  {activeSelected === p && <Icon name="check" />}
+                </span>
                 <span className="player-btn-name">{config.players[p]}</span>
                 {state.server === p && (
                   <span className="serving-tag">
-                    <ServeBall /> saca
+                    <ServeBall decorative /> saca
                   </span>
                 )}
               </button>
             ))}
           </div>
 
-          <h2 className="step">2 · Acción {activeSelected === null && <span className="muted">(elegí un jugador)</span>}</h2>
+          <h2 className="step">
+            2 · ¿Cómo terminó el punto?{' '}
+            {activeSelected === null && <span className="step-hint">Elegí un jugador primero</span>}
+          </h2>
           <div className="actions">
             <div className="action-group">{WIN_ACTIONS.map(actionButton)}</div>
             <div className="action-group">{ERR_ACTIONS.map(actionButton)}</div>
@@ -150,9 +185,12 @@ function LastPoint({
   const serveAction = SERVE_ACTIONS.has(ev.action);
   return (
     <div className="last-point card" aria-live="polite">
-      <p className="last-title">
-        <span className="muted">Punto {record.number}</span> {explainPoint(config, ev)}
+      <p className="eyebrow">
+        Último punto · #{record.number} · {describeLocation(record)}
       </p>
+      <p className="last-score mono">{formatScoreLine(record.after, config)}</p>
+      <p className="last-title">{explainPoint(config, ev)}</p>
+      <Closures texts={describeClosure(record, config)} />
       {serveAction ? (
         <p className="muted small">Golpe: saque.</p>
       ) : (

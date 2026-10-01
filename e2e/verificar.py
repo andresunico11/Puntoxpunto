@@ -13,8 +13,9 @@ def ok(msg):
     log.append("OK  " + msg); print("OK ", msg)
 
 def score(page):
-    games = page.locator(".scoreboard td.col-games").all_inner_texts()
-    pts = page.locator(".scoreboard td.col-points").all_inner_texts()
+    cells = lambda sel: [c.get_attribute("data-value") for c in page.locator(f".scoreboard {sel}").all()]
+    games = cells(".sb-games")
+    pts = cells(".sb-points")
     return games, pts
 
 def act(page, player, action):
@@ -33,7 +34,7 @@ with sync_playwright() as p:
     ok("inicio vacío, sin datos de demostración")
 
     # Crear partido
-    page.get_by_role("button", name="+ Nuevo partido").click()
+    page.get_by_role("button", name="Nuevo partido").click()
     page.get_by_role("button", name="Empezar partido").click()
     expect(page.get_by_text("Completá los dos nombres.")).to_be_visible()
     ok("valida nombres vacíos")
@@ -87,7 +88,7 @@ with sync_playwright() as p:
     ok("historial muestra cierre de game y golpe")
 
     # Corregir último punto: fue error no forzado de Ana
-    page.get_by_role("button", name="✎ Corregir último").click()
+    page.get_by_role("button", name="Corregir último").click()
     dlg = page.get_by_role("dialog")
     dlg.locator(".edit-actions .seg", has_text="Error no forzado").click()
     expect(dlg).to_contain_text("Punto para Bea: error no forzado de Ana.")
@@ -116,7 +117,7 @@ with sync_playwright() as p:
     ok("corrección conflictiva rechazada sin modificar datos")
 
     # Deshacer
-    page.get_by_role("button", name="↶ Deshacer").click()
+    page.get_by_role("button", name="Deshacer").click()
     expect(page.locator(".notice")).to_contain_text("Se deshizo el punto 6")
     g, pts = score(page)
     assert pts == ["0", "0"], pts
@@ -130,7 +131,7 @@ with sync_playwright() as p:
     ok("tras recargar se restaura el partido abierto")
 
     # Volver y retomar
-    page.get_by_role("button", name="← Partidos").click()
+    page.get_by_role("button", name="Partidos").click()
     item = page.locator(".match-item").first
     expect(item).to_contain_text("En curso")
     expect(item).to_contain_text("5 puntos")
@@ -165,7 +166,7 @@ with sync_playwright() as p:
     ok(f"exporta JSON con versión de esquema ({d.value.suggested_filename})")
 
     # Eliminar con confirmación
-    page.get_by_role("button", name="← Partidos").click()
+    page.get_by_role("button", name="Partidos").click()
     page.locator(".match-item").first.get_by_role("button", name="Eliminar").click()
     expect(page.get_by_role("dialog")).to_contain_text("No se puede deshacer")
     page.get_by_role("dialog").get_by_role("button", name="Cancelar").click()
@@ -189,7 +190,7 @@ with sync_playwright() as p:
     ok("importación valida historial; id repetido se importa como copia")
 
     # Partido a un set hasta el final
-    page.get_by_role("button", name="+ Nuevo partido").click()
+    page.get_by_role("button", name="Nuevo partido").click()
     page.locator("input.input").nth(0).fill("Carla")
     page.locator("input.input").nth(1).fill("Dana")
     page.locator("label.seg", has_text="Un set").click()
@@ -213,14 +214,14 @@ with sync_playwright() as p:
     expect(page.locator(".score-foot")).to_contain_text("Partido terminado · Ganó Dana")
     expect(page.get_by_text("No se pueden cargar más puntos")).to_be_visible()
     expect(page.locator("button.action")).to_have_count(0)
-    expect(page.get_by_role("button", name="↶ Deshacer")).to_be_enabled()
-    expect(page.get_by_role("button", name="✎ Corregir último")).to_be_enabled()
+    expect(page.get_by_role("button", name="Deshacer")).to_be_enabled()
+    expect(page.get_by_role("button", name="Corregir último")).to_be_enabled()
     page.screenshot(path=f"{OUT}/11-final.png")
     page.get_by_role("tab", name=re.compile("Historial")).click()
     expect(page.locator(".history li").first).to_contain_text("Set 1 para Dana 6–7(0)")
     expect(page.locator(".history li").first).to_contain_text("Partido para Dana")
     ok("final de partido bloquea puntos y mantiene deshacer/corregir")
-    page.get_by_role("button", name="↶ Deshacer").click()
+    page.get_by_role("button", name="Deshacer").click()
     expect(page.locator(".score-foot")).to_contain_text("Saca")
     page.get_by_role("tab", name="Registro").click()
     expect(page.locator("button.action")).to_have_count(7)

@@ -17,7 +17,7 @@ import {
   type PointRecord,
   type ShotType,
 } from '../engine';
-import { Modal } from './ui';
+import { Icon, Modal } from './ui';
 
 const timeFmt = new Intl.DateTimeFormat('es-AR', { hour: '2-digit', minute: '2-digit' });
 
@@ -46,7 +46,7 @@ export function HistoryPanel({
                 {timeFmt.format(new Date(ev.timestamp))}
               </time>
               <button className="btn small-btn" onClick={() => onEdit(r.number - 1)}>
-                Editar
+                <Icon name="edit" /> Editar
               </button>
             </div>
             <dl className="point-grid">
@@ -67,19 +67,25 @@ export function HistoryPanel({
                 {formatScoreLine(r.after, config)}
               </dd>
             </dl>
-            {closures.length > 0 && (
-              <div className="closures">
-                {closures.map((c) => (
-                  <span key={c} className={`closure ${c.startsWith('Partido') ? 'match' : c.startsWith('Game') ? 'game' : 'set'}`}>
-                    {c}
-                  </span>
-                ))}
-              </div>
-            )}
+            <Closures texts={closures} />
           </li>
         );
       })}
     </ol>
+  );
+}
+
+/** Cierres de game / set / partido como etiquetas. */
+export function Closures({ texts }: { texts: string[] }) {
+  if (texts.length === 0) return null;
+  return (
+    <div className="closures">
+      {texts.map((c) => (
+        <span key={c} className={`closure ${c.startsWith('Partido') ? 'match' : c.startsWith('Game') ? 'game' : 'set'}`}>
+          {c}
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -156,6 +162,7 @@ export function EditPointDialog({
                 setConflict(null);
               }}
             >
+              {actor === p && <Icon name="check" className="seg-check" />}
               <span className="seg-label">{config.players[p]}</span>
             </button>
           ))}
@@ -175,6 +182,7 @@ export function EditPointDialog({
                 setConflict(null);
               }}
             >
+              {action === a && <Icon name="check" className="seg-check" />}
               <span className="seg-label">{ACTION_LABELS[a]}</span>
             </button>
           ))}

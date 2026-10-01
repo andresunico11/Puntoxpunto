@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { formatMatchSummary, replay, type StoredMatch } from '../engine';
-import { ConfirmDialog } from './ui';
+import { ConfirmDialog, Icon } from './ui';
 
 const dateFmt = new Intl.DateTimeFormat('es-AR', {
   day: '2-digit',
@@ -31,23 +31,28 @@ export function Home({
     <div className="page home">
       <header className="brand">
         <div className="brand-mark" aria-hidden="true">
-          <span />
+          <span className="plate plate-light">
+            <span className="plate-face">1</span>
+          </span>
+          <span className="plate plate-light">
+            <span className="plate-face">5</span>
+          </span>
         </div>
         <div>
-          <h1>Punto a Punto</h1>
-          <p className="muted">Registro de partidos de tenis singles</p>
+          <h1 className="wordmark">Punto a Punto</h1>
+          <p className="brand-sub">Registro de partidos de tenis singles</p>
         </div>
       </header>
 
       <button className="btn primary block big" onClick={onNew}>
-        + Nuevo partido
+        <Icon name="plus" /> Nuevo partido
       </button>
 
       <section aria-labelledby="saved-title">
         <div className="section-head">
           <h2 id="saved-title">Partidos guardados</h2>
           <button className="btn ghost" onClick={() => fileRef.current?.click()}>
-            Importar JSON
+            <Icon name="import" /> Importar JSON
           </button>
           <input
             ref={fileRef}
@@ -80,9 +85,9 @@ export function Home({
                     </span>
                     <span className="match-meta">
                       <span className={`tag ${done ? 'done' : 'live'}`}>{done ? 'Finalizado' : 'En curso'}</span>
-                      {summary && <span className="mono">{summary}</span>}
+                      {summary && <span className="mono score-chip">{summary}</span>}
                       {!done && (
-                        <span className="mono">
+                        <span className="mono score-chip">
                           {st.phase === 'superTiebreak' ? 'STB' : `${st.games[0]}–${st.games[1]}`}
                         </span>
                       )}
@@ -97,10 +102,10 @@ export function Home({
                       {done ? 'Ver' : 'Retomar'}
                     </button>
                     <button className="btn ghost" onClick={() => onExport(m)}>
-                      Exportar
+                      <Icon name="export" /> Exportar
                     </button>
                     <button className="btn ghost danger-text" onClick={() => setToDelete(m)}>
-                      Eliminar
+                      <Icon name="trash" /> Eliminar
                     </button>
                   </div>
                 </li>

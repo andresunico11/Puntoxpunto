@@ -107,3 +107,9 @@ El repo incluye `vercel.json` listo para usar:
 3. Cada push a la rama principal publica en producción; las demás ramas generan previews.
 
 Requiere Node 22.12 o superior (el default de Vercel ya lo cumple).
+
+## Diseño
+
+Estética de marcador analógico de club: tablero verde con placas intercambiables, bisagras y remaches hechos con CSS (sin imágenes). El tema está centralizado en variables CSS al inicio de `src/index.css`. Las fuentes (Barlow y Barlow Condensed, licencia SIL OFL) se sirven localmente desde `src/assets/fonts`. Al cambiar un valor, solo gira esa placa (~190 ms); con `prefers-reduced-motion` no hay animación.
+
+`e2e/visual.py` revisa el tablero a 360, 390, 430 y 1280 px en estados normal, deuce, ventaja, tie-break, super tie-break y final, y guarda capturas en `e2e/capturas/`.
